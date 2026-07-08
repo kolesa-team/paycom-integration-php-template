@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 class Response
@@ -8,24 +10,25 @@ class Response
      * Response constructor.
      * @param Request $request request object.
      */
-    public function __construct(Request $request)
+    public function __construct(private readonly Request $request)
     {
-        $this->request = $request;
     }
 
     /**
      * Sends response with the given result and error.
      * @param mixed $result result of the request.
-     * @param mixed|null $error error.
+     * @param mixed $error error.
      */
-    public function send($result, $error = null)
+    public function send(mixed $result, mixed $error = null): void
     {
         header('Content-Type: application/json; charset=UTF-8');
 
-        $response['jsonrpc'] = '2.0';
-        $response['id']      = $this->request->id;
-        $response['result']  = $result;
-        $response['error']   = $error;
+        $response = [
+            'jsonrpc' => '2.0',
+            'id'      => $this->request->id,
+            'result'  => $result,
+            'error'   => $error,
+        ];
 
         echo json_encode($response);
     }
@@ -33,11 +36,12 @@ class Response
     /**
      * Generates PaycomException exception with given parameters.
      * @param int $code error code.
-     * @param string|array $message error message.
-     * @param string $data parameter name, that resulted to this error.
+     * @param string|array|null $message error message.
+     * @param string|null $data parameter name, that resulted to this error.
+     * @return never
      * @throws PaycomException
      */
-    public function error($code, $message = null, $data = null)
+    public function error(int $code, string|array|null $message = null, ?string $data = null): never
     {
         throw new PaycomException($this->request->id, $message, $code, $data);
     }

@@ -1,31 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 class PaycomException extends \Exception
 {
-    const ERROR_INTERNAL_SYSTEM         = -32400;
-    const ERROR_INSUFFICIENT_PRIVILEGE  = -32504;
-    const ERROR_INVALID_JSON_RPC_OBJECT = -32600;
-    const ERROR_METHOD_NOT_FOUND        = -32601;
-    const ERROR_INVALID_AMOUNT          = -31001;
-    const ERROR_TRANSACTION_NOT_FOUND   = -31003;
-    const ERROR_INVALID_ACCOUNT         = -31050;
-    const ERROR_COULD_NOT_CANCEL        = -31007;
-    const ERROR_COULD_NOT_PERFORM       = -31008;
+    public const int ERROR_INTERNAL_SYSTEM         = -32400;
+    public const int ERROR_INSUFFICIENT_PRIVILEGE  = -32504;
+    public const int ERROR_INVALID_JSON_RPC_OBJECT = -32600;
+    public const int ERROR_METHOD_NOT_FOUND        = -32601;
+    public const int ERROR_INVALID_AMOUNT          = -31001;
+    public const int ERROR_TRANSACTION_NOT_FOUND   = -31003;
+    public const int ERROR_INVALID_ACCOUNT         = -31050;
+    public const int ERROR_COULD_NOT_CANCEL        = -31007;
+    public const int ERROR_COULD_NOT_PERFORM       = -31008;
 
-    public $request_id;
-    public $error;
-    public $data;
+    public ?int $request_id;
+    public array $error;
+    public string|array|null $data;
 
     /**
      * PaycomException constructor.
-     * @param int $request_id id of the request.
-     * @param string|array $message error message.
+     * @param int|null $request_id id of the request.
+     * @param string|array|null $message error message.
      * @param int $code error code.
      * @param string|null $data parameter name, that resulted to this error.
      */
-    public function __construct($request_id, $message, $code, $data = null)
+    public function __construct(?int $request_id, string|array|null $message, int $code, ?string $data = null)
     {
         $this->request_id = $request_id;
         $this->message    = $message;
@@ -44,19 +46,21 @@ class PaycomException extends \Exception
         }
     }
 
-    public function send()
+    public function send(): void
     {
         header('Content-Type: application/json; charset=UTF-8');
 
         // create response
-        $response['id']     = $this->request_id;
-        $response['result'] = null;
-        $response['error']  = $this->error;
+        $response = [
+            'id'     => $this->request_id,
+            'result' => null,
+            'error'  => $this->error,
+        ];
 
         echo json_encode($response);
     }
 
-    public static function message($ru, $uz = '', $en = '')
+    public static function message(string $ru, string $uz = '', string $en = ''): array
     {
         return ['ru' => $ru, 'uz' => $uz, 'en' => $en];
     }

@@ -17,7 +17,7 @@ One **MUST** implement all the `todo:` entries found in the source files accordi
 
 ## Prerequisites
 
-- `PHP 5.4` or greater
+- `PHP 8.4` or greater
 - `MySQL` or `MariaDB` latest stable version
 - [PDO](http://php.net/manual/en/book.pdo.php) extension
 - [Composer](https://getcomposer.org/download/) dependency manager
@@ -163,7 +163,7 @@ Following is the brief description of the files:
 | `PaycomException.php`      | A custom exception class to send error responses.                                         |
 | `Order.php`                | A class to handle order/service related tasks.                                            |
 | `vendor/`                  | Auto generated with Composer folder that contains autoloader.                             |
-| `Dockerfile`               | Dockerfile to build an image with `PHP v7`, `Apache v2.4`, `Composer`.                    |
+| `Dockerfile`               | Dockerfile to build an image with `PHP v8.4`, `Apache v2.4`, `Composer`.                  |
 | `docker-compose.yml`       | Compose file to easily setup & run Merchant API implementation on the docker containers.  |
 | `.gitignore`               | Git ignore file.                                                                          |
 | `composer.json`            | Config file to handle dependencies and autoloader. Read more [here](https://getcomposer.org/doc/04-schema.md) |
@@ -176,14 +176,14 @@ In cases that there is no `PHP`/`Apache`/`Nginx`/`MySQL` on your production plat
 Here we will build docker images for `Paycom Merchant API` and optionally for `MySQL`.
 
 `Dockerfile` contains statements to build an image for `Merchant API`.
-This image is based on `PHP v7` and `Apache 2.4`, but also includes `PDO` and `PDO_MYSQL` extensions.
+This image is based on `PHP v8.4` and `Apache 2.4`, but also includes `PDO` and `PDO_MYSQL` extensions.
 There are also statements to install the latest version of `Composer`.
 
 By editing `docker-compose.yml` file you can adjust exposed ports, volumes.
 
 If you need more info about base images and docker commands look at the following links:
 
-- [Official php:7-apache docker image](https://hub.docker.com/_/php/);
+- [Official php:8.4-apache docker image](https://hub.docker.com/_/php/);
 - [Official mysql docker image](https://hub.docker.com/_/mysql/);
 - [Dockerfile reference](https://docs.docker.com/engine/reference/builder/);
 - [Docker Compose file reference](https://docs.docker.com/compose/compose-file/);

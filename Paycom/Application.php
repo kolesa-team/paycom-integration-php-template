@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 class Application
 {
-    public $config;
-    public $request;
-    public $response;
-    public $merchant;
+    public array $config;
+    public Request $request;
+    public Response $response;
+    public Merchant $merchant;
 
     /**
      * Application constructor.
      * @param array $config configuration array with <em>merchant_id</em>, <em>login</em>, <em>keyFile</em> keys.
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         $this->config   = $config;
         $this->request  = new Request();
@@ -24,7 +26,7 @@ class Application
     /**
      * Authorizes session and handles requests.
      */
-    public function run()
+    public function run(): void
     {
         try {
             // authorize session
@@ -66,7 +68,7 @@ class Application
         }
     }
 
-    private function CheckPerformTransaction()
+    private function CheckPerformTransaction(): void
     {
         $order = new Order($this->request->id);
         $order->find($this->request->params['account']);
@@ -89,7 +91,7 @@ class Application
         $this->response->send(['allow' => true]);
     }
 
-    private function CheckTransaction()
+    private function CheckTransaction(): void
     {
         // todo: Find transaction by id
         $transaction = new Transaction();
@@ -112,7 +114,7 @@ class Application
         ]);
     }
 
-    private function CreateTransaction()
+    private function CreateTransaction(): void
     {
         $order = new Order($this->request->id);
         $order->find($this->request->params['account']);
@@ -194,7 +196,7 @@ class Application
         }
     }
 
-    private function PerformTransaction()
+    private function PerformTransaction(): void
     {
         $transaction = new Transaction();
         // search transaction by id
@@ -253,7 +255,7 @@ class Application
         }
     }
 
-    private function CancelTransaction()
+    private function CancelTransaction(): void
     {
         $transaction = new Transaction();
 
@@ -323,7 +325,7 @@ class Application
         }
     }
 
-    private function ChangePassword()
+    private function ChangePassword(): void
     {
         // validate, password is specified, otherwise send error
         if (!isset($this->request->params['password']) || !trim($this->request->params['password'])) {
@@ -346,7 +348,7 @@ class Application
         $this->response->send(['success' => true]);
     }
 
-    private function GetStatement()
+    private function GetStatement(): void
     {
         // validate 'from'
         if (!isset($this->request->params['from'])) {

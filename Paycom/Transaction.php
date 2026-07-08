@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 /**
@@ -31,65 +33,65 @@ namespace Paycom;
 class Transaction extends Database
 {
     /** Transaction expiration time in milliseconds. 43 200 000 ms = 12 hours. */
-    const TIMEOUT = 43200000;
+    public const int TIMEOUT = 43200000;
 
-    const STATE_CREATED                  = 1;
-    const STATE_COMPLETED                = 2;
-    const STATE_CANCELLED                = -1;
-    const STATE_CANCELLED_AFTER_COMPLETE = -2;
+    public const int STATE_CREATED                  = 1;
+    public const int STATE_COMPLETED                = 2;
+    public const int STATE_CANCELLED                = -1;
+    public const int STATE_CANCELLED_AFTER_COMPLETE = -2;
 
-    const REASON_RECEIVERS_NOT_FOUND         = 1;
-    const REASON_PROCESSING_EXECUTION_FAILED = 2;
-    const REASON_EXECUTION_FAILED            = 3;
-    const REASON_CANCELLED_BY_TIMEOUT        = 4;
-    const REASON_FUND_RETURNED               = 5;
-    const REASON_UNKNOWN                     = 10;
+    public const int REASON_RECEIVERS_NOT_FOUND         = 1;
+    public const int REASON_PROCESSING_EXECUTION_FAILED = 2;
+    public const int REASON_EXECUTION_FAILED            = 3;
+    public const int REASON_CANCELLED_BY_TIMEOUT        = 4;
+    public const int REASON_FUND_RETURNED               = 5;
+    public const int REASON_UNKNOWN                     = 10;
 
-    /** @var string Paycom transaction id. */
-    public $paycom_transaction_id;
+    /** @var string|null Paycom transaction id. */
+    public ?string $paycom_transaction_id = null;
 
-    /** @var int Paycom transaction time as is without change. */
-    public $paycom_time;
+    /** @var int|null Paycom transaction time as is without change. */
+    public ?int $paycom_time = null;
 
-    /** @var string Paycom transaction time as date and time string. */
-    public $paycom_time_datetime;
+    /** @var string|null Paycom transaction time as date and time string. */
+    public ?string $paycom_time_datetime = null;
 
-    /** @var int Transaction id in the merchant's system. */
-    public $id;
+    /** @var int|string|null Transaction id in the merchant's system. */
+    public int|string|null $id = null;
 
-    /** @var string Transaction create date and time in the merchant's system. */
-    public $create_time;
+    /** @var string|null Transaction create date and time in the merchant's system. */
+    public ?string $create_time = null;
 
-    /** @var string Transaction perform date and time in the merchant's system. */
-    public $perform_time;
+    /** @var string|null Transaction perform date and time in the merchant's system. */
+    public ?string $perform_time = null;
 
-    /** @var string Transaction cancel date and time in the merchant's system. */
-    public $cancel_time;
+    /** @var string|null Transaction cancel date and time in the merchant's system. */
+    public ?string $cancel_time = null;
 
-    /** @var int Transaction state. */
-    public $state;
+    /** @var int|null Transaction state. */
+    public ?int $state = null;
 
-    /** @var int Transaction cancelling reason. */
-    public $reason;
+    /** @var int|null Transaction cancelling reason. */
+    public ?int $reason = null;
 
-    /** @var int Amount value in coins, this is service or product price. */
-    public $amount;
+    /** @var int|null Amount value in coins, this is service or product price. */
+    public ?int $amount = null;
 
-    /** @var string Pay receivers. Null - owner is the only receiver. */
-    public $receivers;
+    /** @var array|null Pay receivers. Null - owner is the only receiver. */
+    public ?array $receivers = null;
 
     // additional fields:
     // - to identify order or product, for example, code of the order
     // - to identify client, for example, account id or phone number
 
-    /** @var string Code to identify the order or service for pay. */
-    public $order_id;
+    /** @var int|string|null Code to identify the order or service for pay. */
+    public int|string|null $order_id = null;
 
     /**
      * Saves current transaction instance in a data store.
      * @return bool true - on success
      */
-    public function save()
+    public function save(): bool
     {
         // todo: Implement creating/updating transaction into data store
         // todo: Populate $id property with newly created transaction id
@@ -103,7 +105,7 @@ class Transaction extends Database
             // Create a new transaction
 
             $this->create_time = Format::timestamp2datetime(Format::timestamp());
-            $sql               = "INSERT INTO transactions SET 
+            $sql               = "INSERT INTO transactions SET
                                     paycom_transaction_id = :pPaycomTxId,
                                     paycom_time = :pPaycomTime,
                                     paycom_time_datetime = :pPaycomTimeStr,
@@ -151,8 +153,8 @@ class Transaction extends Database
 
             $sth = $db->prepare($sql);
 
-            $perform_time = $this->perform_time ? $this->perform_time : null;
-            $cancel_time  = $this->cancel_time ? $this->cancel_time : null;
+            $perform_time = $this->perform_time ?: null;
+            $cancel_time  = $this->cancel_time ?: null;
             $reason       = $this->reason ? 1 * $this->reason : null;
 
             $params[':pPerformTime'] = $perform_time;
@@ -173,7 +175,7 @@ class Transaction extends Database
      * @param int $reason cancelling reason.
      * @return void
      */
-    public function cancel($reason)
+    public function cancel(int $reason): void
     {
         // todo: Implement transaction cancelling on data store
 
@@ -201,7 +203,7 @@ class Transaction extends Database
      * Determines whether current transaction is expired or not.
      * @return bool true - if current instance of the transaction is expired, false - otherwise.
      */
-    public function isExpired()
+    public function isExpired(): bool
     {
         // todo: Implement transaction expiration check
         // for example, if transaction is active and passed TIMEOUT milliseconds after its creation, then it is expired
@@ -210,11 +212,11 @@ class Transaction extends Database
 
     /**
      * Find transaction by given parameters.
-     * @param mixed $params parameters
-     * @return Transaction|Transaction[]
+     * @param array $params parameters
+     * @return static|null
      * @throws PaycomException invalid parameters specified
      */
-    public function find($params)
+    public function find(array $params): ?static
     {
         $db = self::db();
 
@@ -272,11 +274,11 @@ class Transaction extends Database
 
     /**
      * Gets list of transactions for the given period including period boundaries.
-     * @param int $from_date start of the period in timestamp.
-     * @param int $to_date end of the period in timestamp.
+     * @param int|string $from_date start of the period in timestamp.
+     * @param int|string $to_date end of the period in timestamp.
      * @return array list of found transactions converted into report format for send as a response.
      */
-    public function report($from_date, $to_date)
+    public function report(int|string $from_date, int|string $to_date): array
     {
         $from_date = Format::timestamp2datetime($from_date);
         $to_date   = Format::timestamp2datetime($to_date);
@@ -290,7 +292,7 @@ class Transaction extends Database
 
         $db = self::db();
 
-        $sql = "SELECT * FROM transactions 
+        $sql = "SELECT * FROM transactions
                 WHERE paycom_time_datetime BETWEEN :from_date AND :to_date
                 ORDER BY paycom_time_datetime";
 

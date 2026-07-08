@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 class Merchant
 {
-    public $config;
+    public array $config;
 
-    public function __construct($config)
+    public function __construct(array $config)
     {
         $this->config = $config;
 
         // read key from key file
         if ($this->config['keyFile']) {
-            $this->config['key'] = trim(file_get_contents($this->config['keyFile']));
+            $this->config['key'] = trim((string)file_get_contents($this->config['keyFile']));
         }
     }
 
-    public function Authorize($request_id)
+    public function Authorize(?int $request_id): bool
     {
         $headers = getallheaders();
 

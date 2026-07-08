@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 /**
@@ -21,53 +23,53 @@ namespace Paycom;
 class Order extends Database
 {
     /** Order is available for sell, anyone can buy it. */
-    const STATE_AVAILABLE = 0;
+    public const int STATE_AVAILABLE = 0;
 
     /** Pay in progress, order must not be changed. */
-    const STATE_WAITING_PAY = 1;
+    public const int STATE_WAITING_PAY = 1;
 
     /** Order completed and not available for sell. */
-    const STATE_PAY_ACCEPTED = 2;
+    public const int STATE_PAY_ACCEPTED = 2;
 
     /** Order is cancelled. */
-    const STATE_CANCELLED = 3;
+    public const int STATE_CANCELLED = 3;
 
-    public $request_id;
-    public $params;
+    public ?int $request_id;
+    public ?array $params = null;
 
     // todo: Adjust Order specific fields for your needs
 
     /**
      * Order ID
      */
-    public $id;
+    public int|string|null $id = null;
 
     /**
      * IDs of the selected products/services
      */
-    public $product_ids;
+    public ?array $product_ids = null;
 
     /**
      * Total price of the selected products/services
      */
-    public $amount;
+    public int|float|null $amount = null;
 
     /**
      * State of the order
      */
-    public $state;
+    public ?int $state = null;
 
     /**
      * ID of the customer created the order
      */
-    public $user_id;
+    public ?int $user_id = null;
 
     /**
      * Phone number of the user
      */
-    public $phone;
+    public ?string $phone = null;
 
-    public function __construct($request_id)
+    public function __construct(?int $request_id)
     {
         $this->request_id = $request_id;
     }
@@ -78,7 +80,7 @@ class Order extends Database
      * @return bool true - if validation passes
      * @throws PaycomException - if validation fails
      */
-    public function validate(array $params)
+    public function validate(array $params): bool
     {
         // todo: Validate amount, if failed throw error
         // for example, check amount is numeric
@@ -152,10 +154,10 @@ class Order extends Database
 
     /**
      * Find order by given parameters.
-     * @param mixed $params parameters.
-     * @return Order|Order[] found order or array of orders.
+     * @param array $params parameters.
+     * @return static|null found order.
      */
-    public function find($params)
+    public function find(array $params): ?static
     {
         // todo: Implement searching order(s) by given parameters, populate current instance with data
 
@@ -195,7 +197,7 @@ class Order extends Database
      * @param int $state new state of the order
      * @return void
      */
-    public function changeState($state)
+    public function changeState(int $state): void
     {
         // todo: Implement changing order state (reserve order after create transaction or free order after cancel)
 
@@ -208,7 +210,7 @@ class Order extends Database
      * Check, whether order can be cancelled or not.
      * @return bool true - order is cancellable, otherwise false.
      */
-    public function allowCancel()
+    public function allowCancel(): bool
     {
         // todo: Implement order cancelling allowance check
 
@@ -220,7 +222,7 @@ class Order extends Database
      * Saves this order.
      * @throws PaycomException
      */
-    public function save()
+    public function save(): void
     {
         $db = self::db();
 

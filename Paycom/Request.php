@@ -1,23 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Paycom;
 
 class Request
 {
-    /** @var array decoded request payload */
-    public $payload;
+    /** @var mixed decoded request payload */
+    public mixed $payload;
 
-    /** @var int id of the request */
-    public $id;
+    /** @var int|null id of the request */
+    public ?int $id;
 
-    /** @var string method name, such as <em>CreateTransaction</em> */
-    public $method;
+    /** @var string|null method name, such as <em>CreateTransaction</em> */
+    public ?string $method;
 
     /** @var array request parameters, such as <em>amount</em>, <em>account</em> */
-    public $params;
+    public array $params;
 
-    /** @var int amount value in coins */
-    public $amount;
+    /** @var int|null amount value in coins */
+    public ?int $amount;
 
     /**
      * Request constructor.
@@ -26,7 +28,7 @@ class Request
     public function __construct()
     {
         $request_body  = file_get_contents('php://input');
-        $this->payload = json_decode($request_body, true);
+        $this->payload = json_decode((string)$request_body, true);
 
         if (!$this->payload) {
             throw new PaycomException(
@@ -38,8 +40,8 @@ class Request
 
         // populate request object with data
         $this->id     = isset($this->payload['id']) ? 1 * $this->payload['id'] : null;
-        $this->method = isset($this->payload['method']) ? trim($this->payload['method']) : null;
-        $this->params = isset($this->payload['params']) ? $this->payload['params'] : [];
+        $this->method = isset($this->payload['method']) ? trim((string)$this->payload['method']) : null;
+        $this->params = $this->payload['params'] ?? [];
         $this->amount = isset($this->payload['params']['amount']) ? 1 * $this->payload['params']['amount'] : null;
 
         // add request id into params too
@@ -49,9 +51,9 @@ class Request
     /**
      * Gets account parameter if such exists, otherwise returns null.
      * @param string $param name of the parameter.
-     * @return mixed|null account parameter value or null if such parameter doesn't exists.
+     * @return mixed account parameter value or null if such parameter doesn't exists.
      */
-    public function account($param)
+    public function account(string $param): mixed
     {
         return isset($this->params['account'], $this->params['account'][$param]) ? $this->params['account'][$param] : null;
     }
