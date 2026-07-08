@@ -1,5 +1,5 @@
 {
-  "name": "paycom/integration-template",
+  "name": "kolesa-team/integration-template",
   "description": "Set of classes to easy integration with Paycom (Payme) payment system",
   "type": "library",
   "keywords": [
